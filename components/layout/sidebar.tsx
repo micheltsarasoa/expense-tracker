@@ -9,6 +9,8 @@ const navigation = [
   { name: "Transactions", href: "/transactions", icon: "💸" },
   { name: "Accounts", href: "/accounts", icon: "🏦" },
   { name: "Categories", href: "/categories", icon: "📁" },
+  { name: "Budgets", href: "/budgets", icon: "📁" },
+  { name: "Reports", href: "/reports", icon: "📁" },
 ];
 
 export default function Sidebar() {

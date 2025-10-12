@@ -1,0 +1,6 @@
+date,type,amount,description,category,account
+2025-10-01,expense,50.00,Grocery shopping,Food & Dining,Cash
+2025-10-02,income,2000.00,Monthly salary,Salary,Bank Account
+2025-10-03,expense,120.00,Electric bill,Utilities,Credit Card
+2025-10-05,expense,35.50,Restaurant dinner,Food & Dining,Credit Card
+2025-10-08,transfer,200.00,Transfer to savings,Transfer,Bank Account

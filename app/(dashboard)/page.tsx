@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authOptions } from "@/lib/auth/config";
 import { getTransactionsByUser } from "@/lib/db/queries/transactions";
 import { getPaymentMethodsByUser } from "@/lib/db/queries/payment-methods";
-import SeedButton from "@/components/seed-button";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -41,7 +40,6 @@ export default async function DashboardPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <SeedButton />
       </div>
 
       {/* Summary Cards */}

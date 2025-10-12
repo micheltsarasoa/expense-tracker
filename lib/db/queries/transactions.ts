@@ -49,7 +49,7 @@ export async function getTransactionsByUser(userId: string, limit = 20, offset =
   return result.rows;
 }
 
-export async function updateTransaction(id: string, userId: string, data: any) {
+export async function updateTransaction2(id: string, userId: string, data: any) {
   const sql = `
     UPDATE transactions
     SET amount = $1, description = $2, transaction_date = $3,
@@ -69,6 +69,63 @@ export async function updateTransaction(id: string, userId: string, data: any) {
   return result.rows[0];
 }
 
+export async function updateTransaction(id: string, userId: string, data: any) {
+  // Build dynamic update
+  const updates: string[] = [];
+  const values: any[] = [];
+  let paramCount = 1;
+
+  if (data.amount !== undefined) {
+    updates.push(`amount = $${paramCount++}`);
+    values.push(data.amount);
+  }
+  if (data.description !== undefined) {
+    updates.push(`description = $${paramCount++}`);
+    values.push(data.description);
+  }
+  if (data.transactionDate !== undefined) {
+    updates.push(`transaction_date = $${paramCount++}`);
+    values.push(data.transactionDate);
+  }
+  if (data.categoryId !== undefined) {
+    updates.push(`category_id = $${paramCount++}`);
+    values.push(data.categoryId);
+  }
+  if (data.paymentMethodId !== undefined) {
+    updates.push(`payment_method_id = $${paramCount++}`);
+    values.push(data.paymentMethodId);
+  }
+  if (data.accountId !== undefined) {
+    updates.push(`account_id = $${paramCount++}`);
+    values.push(data.accountId);
+  }
+  if (data.toAccountId !== undefined) {
+    updates.push(`to_account_id = $${paramCount++}`);
+    values.push(data.toAccountId);
+  }
+  if (data.type !== undefined) {
+    updates.push(`type = $${paramCount++}`);
+    values.push(data.type);
+  }
+
+  if (updates.length === 0) {
+    throw new Error('No fields to update');
+  }
+
+  updates.push('updated_at = CURRENT_TIMESTAMP');
+  values.push(id, userId);
+
+  const sql = `
+    UPDATE transactions
+    SET ${updates.join(', ')}
+    WHERE id = $${paramCount++} AND user_id = $${paramCount++} AND is_deleted = FALSE
+    RETURNING *
+  `;
+  
+  const result = await query(sql, values);
+  return result.rows[0];
+}
+
 export async function deleteTransaction(id: string, userId: string) {
   const sql = `
     UPDATE transactions
@@ -78,4 +135,14 @@ export async function deleteTransaction(id: string, userId: string) {
   `;
   const result = await query(sql, [id, userId]);
   return result.rows[0];
+}
+
+export async function getTransactionsCount(userId: string) {
+  const sql = `
+    SELECT COUNT(*) as total
+    FROM transactions
+    WHERE user_id = $1 AND is_deleted = FALSE
+  `;
+  const result = await query(sql, [userId]);
+  return parseInt(result.rows[0].total);
 }

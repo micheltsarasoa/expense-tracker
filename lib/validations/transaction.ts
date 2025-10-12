@@ -22,7 +22,16 @@ export const createTransactionSchema = z.object({
   message: "Invalid transaction data",
 });
 
-export const updateTransactionSchema = createTransactionSchema.partial();
+export const updateTransactionSchema = z.object({
+  type: z.enum(['income', 'expense', 'transfer']).optional(),
+  amount: z.number().positive().optional(),
+  description: z.string().optional(),
+  transaction_date: z.string().optional(),
+  category_id: z.string().uuid().optional(),
+  payment_method_id: z.string().uuid().optional(),
+  account_id: z.string().uuid().optional(),
+  to_account_id: z.string().uuid().optional(),
+});
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>;
