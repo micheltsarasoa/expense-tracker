@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/config";
 import { updateTransactionSchema } from "@/lib/validations/transaction";
 import { updateTransaction, deleteTransaction } from "@/lib/db/queries/transactions";
-import { authOptions } from "@/lib/auth/config";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // Changed
 ) {
   try {
+    const { id } = await params; // Added await
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -20,7 +21,7 @@ export async function PUT(
     const body = await request.json();
     const validatedData = updateTransactionSchema.parse(body);
 
-    const transaction = await updateTransaction(params.id, session.user.id, {
+    const transaction = await updateTransaction(id, session.user.id, {
       ...validatedData,
       transactionDate: validatedData.transaction_date ? new Date(validatedData.transaction_date) : undefined,
     });
@@ -53,9 +54,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> } // Changed
 ) {
   try {
+    const { id } = await params; // Added await
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -64,7 +66,7 @@ export async function DELETE(
       );
     }
 
-    const transaction = await deleteTransaction(params.id, session.user.id);
+    const transaction = await deleteTransaction(id, session.user.id);
 
     if (!transaction) {
       return NextResponse.json(
