@@ -17,6 +17,14 @@ A full-stack expense tracking application built with Next.js 14, PostgreSQL (Neo
 - ✏️ **Edit/Delete** - Full CRUD operations on transactions
 - 📄 **Pagination** - Browse transactions with page navigation
 
+
+## Screenshots
+
+### Dashboard
+![Dashboard](./public/example.png)
+
+*Main dashboard showing account balances, recent transactions, and financial summary*
+
 ## Tech Stack
 
 - **Framework:** Next.js 14 (App Router)
