@@ -100,7 +100,7 @@ export async function updateTransaction(id: string, userId: string, data: any) {
     values.push(data.accountId);
   }
   if (data.toAccountId !== undefined) {
-    updates.push(`to_account_id = $${paramCount++}`);
+    updates.push(`to_payment_method_id = $${paramCount++}`);
     values.push(data.toAccountId);
   }
   if (data.type !== undefined) {
@@ -121,7 +121,9 @@ export async function updateTransaction(id: string, userId: string, data: any) {
     WHERE id = $${paramCount++} AND user_id = $${paramCount++} AND is_deleted = FALSE
     RETURNING *
   `;
-  
+  console.log('id: ' + id);
+  console.log(sql);
+
   const result = await query(sql, values);
   return result.rows[0];
 }

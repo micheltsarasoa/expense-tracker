@@ -258,7 +258,7 @@ export function ImportTransactionsDialog({
         if (!open) resetDialog();
       }}
     >
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-full max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Import Transactions</DialogTitle>
           <DialogDescription>
@@ -421,7 +421,7 @@ export function ImportTransactionsDialog({
                         </Select>
                         </TableCell>
                         
-                        <TableCell className="font-medium">${row.amount}</TableCell>
+                        <TableCell className="font-medium">€{row.amount}</TableCell>
                         
                         {/* Account - Editable */}
                         <TableCell>

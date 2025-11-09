@@ -42,17 +42,17 @@ export function EditTransactionDialog({
   const [loading, setLoading] = useState(false);
   
     const [formData, setFormData] = useState({
-    type: transaction.type,
-    amount: transaction.amount,
-    description: transaction.description || '',
-    transaction_date: transaction.transaction_date 
-        ? new Date(transaction.transaction_date).toISOString().split('T')[0] 
-        : new Date().toISOString().split('T')[0],
-    category_id: transaction.category_id || '',
-    account_id: transaction.account_id || '',
-    to_account_id: transaction.to_account_id || '',
-    payment_method_id: transaction.payment_method_id || '',
-    });
+      type: transaction.type,
+      amount: transaction.amount,
+      description: transaction.description || '',
+      transaction_date: transaction.transaction_date 
+          ? new Date(transaction.transaction_date).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0],
+      category_id: transaction.category_id || '',
+      account_id: transaction.account_id || '',
+      to_account_id: transaction.to_account_id || '',
+      payment_method_id: transaction.payment_method_id || '',
+      });
 
     useEffect(() => {
     if (transaction) {
@@ -61,7 +61,7 @@ export function EditTransactionDialog({
         amount: transaction.amount,
         description: transaction.description || '',
         transaction_date: transaction.transaction_date 
-            ? new Date(transaction.transaction_date).toISOString().split('T')[0] 
+            ? new Date(transaction.transaction_date).toISOString().split('T')[0]
             : new Date().toISOString().split('T')[0],
         category_id: transaction.category_id || '',
         account_id: transaction.account_id || '',
@@ -155,8 +155,8 @@ export function EditTransactionDialog({
           <div className="space-y-2">
             <Label htmlFor="account">Account</Label>
             <Select
-              value={formData.account_id}
-              onValueChange={(value) => setFormData({ ...formData, account_id: value })}
+              value={formData.payment_method_id}
+              onValueChange={(value) => setFormData({ ...formData, payment_method_id: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select account" />

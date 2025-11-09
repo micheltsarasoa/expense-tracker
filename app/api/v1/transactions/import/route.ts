@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
           type: t.type,
           amount: parseFloat(t.amount),
           description: t.description || '',
-          transactionDate: new Date(t.transaction_date),
+          transactionDate: new Date(t.transaction_date  + 'T00:00:00.000Z'),
           categoryId: t.category_id || null,
           paymentMethodId: t.payment_method_id,
           toPaymentMethodId: t.to_account_id || null,

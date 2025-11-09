@@ -6,7 +6,7 @@ import { getTransactionsByUser, getTransactionsCount } from "@/lib/db/queries/tr
 import TransactionTable from "@/components/transactions/transaction-table";
 import { authOptions } from "@/lib/auth/config";
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 100;
 
 export default async function TransactionsPage({
   searchParams,

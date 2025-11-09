@@ -181,11 +181,8 @@ export default function TransactionTable({
                 transactions.map((transaction) => (
                 <TableRow key={transaction.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
                   <TableCell className="font-medium text-sm text-foreground">
-                    {new Date(transaction.transaction_date).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit'
-                        })}
+                    {/* {new Date(transaction.transaction_date).toLocaleDateString('fr-FR', {year: 'numeric', month: '2-digit',day: '2-digit'})} */}
+                     {new Date(transaction.transaction_date).toISOString().split('T')[0]}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
