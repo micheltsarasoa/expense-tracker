@@ -6,17 +6,19 @@ import { getTransactionsByUser, getTransactionsCount } from "@/lib/db/queries/tr
 import TransactionTable from "@/components/transactions/transaction-table";
 import { authOptions } from "@/lib/auth/config";
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 4;
 
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>;
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 
-  const currentPage = parseInt(searchParams.page || "1");
+  const params = await searchParams; // needed to be await
+
+  const currentPage = parseInt(params.page || "1");
   const offset = (currentPage - 1) * PAGE_SIZE;
 
   const [paymentMethods, categories, transactions, totalCount] = await Promise.all([
@@ -30,8 +32,8 @@ export default async function TransactionsPage({
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Transactions</h1>
-      
+      <h1 className="text-2xl font-semibold text-foreground mb-6">Transactions</h1>
+
       <TransactionTable
         initialTransactions={transactions}
         paymentMethods={paymentMethods}
@@ -39,6 +41,7 @@ export default async function TransactionsPage({
         currentPage={currentPage}
         totalPages={totalPages}
         totalCount={totalCount}
+        itemPerPage={PAGE_SIZE}
       />
     </div>
   );

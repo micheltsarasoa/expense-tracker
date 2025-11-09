@@ -86,17 +86,19 @@ export default function BudgetList({
         const remaining = budgetAmount - spentAmount;
 
         return (
-            <Card key={budget.id}>
+            <Card key={budget.id} className="hover:shadow-lg transition-all duration-200 border-0 shadow-md">
             <CardHeader>
                 <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
                     {budget.category_icon && (
-                    <span className="text-2xl">{budget.category_icon}</span>
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-xl">
+                        {budget.category_icon}
+                    </div>
                     )}
                     <div>
-                    <CardTitle className="text-lg">{budget.name}</CardTitle>
+                    <CardTitle className="text-base font-semibold">{budget.name}</CardTitle>
                     {budget.category_name && (
-                        <p className="text-sm text-gray-500">{budget.category_name}</p>
+                        <p className="text-xs text-muted-foreground">{budget.category_name}</p>
                     )}
                     </div>
                 </div>
@@ -105,6 +107,7 @@ export default function BudgetList({
                     variant="ghost"
                     size="icon"
                     onClick={() => setEditDialog({ open: true, budget })}
+                    className="hover:bg-primary/10"
                     >
                     <Pencil className="h-4 w-4" />
                     </Button>
@@ -112,35 +115,36 @@ export default function BudgetList({
                     variant="ghost"
                     size="icon"
                     onClick={() => setDeleteDialog({ open: true, budget })}
+                    className="hover:bg-destructive/10"
                     >
-                    <Trash2 className="h-4 w-4 text-red-600" />
+                    <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                 </div>
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
                 {/* Period */}
-                <Badge variant="outline">
+                <Badge variant="outline" className="border-primary/20 bg-primary/5">
                 {formatPeriod(budget.period_type, budget.start_date, budget.end_date)}
                 </Badge>
 
                 {/* Amount */}
                 <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Spent</span>
-                    <span className="font-medium">
+                    <span className="text-muted-foreground">Spent</span>
+                    <span className="font-medium text-foreground">
                     ${spentAmount.toFixed(2)} / ${budgetAmount.toFixed(2)}
                     </span>
                 </div>
-                <Progress 
-                    value={Math.min(percentage, 100)} 
+                <Progress
+                    value={Math.min(percentage, 100)}
                     className="h-2"
                 />
                 <div className="flex justify-between text-xs">
-                    <span className={percentage >= 100 ? "text-red-600 font-medium" : "text-gray-500"}>
+                    <span className={percentage >= 100 ? "text-destructive font-medium" : "text-muted-foreground"}>
                     {percentage.toFixed(0)}% used
                     </span>
-                    <span className={remaining < 0 ? "text-red-600 font-medium" : "text-green-600"}>
+                    <span className={remaining < 0 ? "text-destructive font-medium" : "text-green-600 dark:text-green-500"}>
                     ${Math.abs(remaining).toFixed(2)} {remaining < 0 ? "over" : "left"}
                     </span>
                 </div>
@@ -148,12 +152,12 @@ export default function BudgetList({
 
                 {/* Warning */}
                 {percentage >= 100 && (
-                <div className="bg-red-50 border border-red-200 rounded p-2 text-sm text-red-700">
+                <div className="bg-destructive/10 rounded-lg p-3 text-sm text-destructive border-0 shadow-sm">
                     ⚠️ Budget exceeded!
                 </div>
                 )}
                 {percentage >= 80 && percentage < 100 && (
-                <div className="bg-orange-50 border border-orange-200 rounded p-2 text-sm text-orange-700">
+                <div className="bg-orange-500/10 rounded-lg p-3 text-sm text-orange-600 dark:text-orange-500 border-0 shadow-sm">
                     ⚠️ Approaching limit
                 </div>
                 )}

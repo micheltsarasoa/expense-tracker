@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -52,6 +52,7 @@ type TransactionTableProps = {
   currentPage: number;
   totalPages: number;
   totalCount: number;
+  itemPerPage: number;
 };
 
 export default function TransactionTable({
@@ -61,11 +62,16 @@ export default function TransactionTable({
   currentPage,
   totalPages,
   totalCount,
+  itemPerPage
 }: TransactionTableProps) {
   
   const [transactions, setTransactions] = useState(initialTransactions);
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
+  useEffect(() => {
+      setTransactions(initialTransactions);
+    }, [initialTransactions]);
+
+  // const [typeFilter, setTypeFilter] = useState("all");
+  // const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
   const [importDialog, setImportDialog] = useState(false);
 
@@ -77,12 +83,12 @@ export default function TransactionTable({
   const [deleteDialog, setDeleteDialog] = useState({ open: false, transaction: null as Transaction | null });
 
   // Filter transactions
-  const filteredTransactions = transactions.filter((t) => {
-    const matchesType = typeFilter === "all" || t.type === typeFilter;
-    const matchesSearch = t.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         t.category_name?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesType && matchesSearch;
-  });
+  // const filteredTransactions = transactions.filter((t) => {
+  //   const matchesType = typeFilter === "all" || t.type === typeFilter;
+  //   const matchesSearch = t.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //                        t.category_name?.toLowerCase().includes(searchTerm.toLowerCase());
+  //   return matchesType && matchesSearch;
+  // });
 
   const handleSuccess = () => {
     setOpen(false);
@@ -108,7 +114,7 @@ export default function TransactionTable({
       {/* Header with filters and add button */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex gap-2 flex-1 w-full sm:w-auto">
-          <Input
+          {/* <Input
             placeholder="Search transactions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -124,7 +130,7 @@ export default function TransactionTable({
               <SelectItem value="expense">Expense</SelectItem>
               <SelectItem value="transfer">Transfer</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
 
         <div className="flex gap-2">
@@ -151,66 +157,71 @@ export default function TransactionTable({
       </div>
 
       {/* Table */}
-      <div className="border rounded-lg">
+      <div className="rounded-lg border-0 shadow-md bg-card overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Account</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
+              <TableHead className="text-xs font-semibold">Date</TableHead>
+              <TableHead className="text-xs font-semibold">Category</TableHead>
+              <TableHead className="text-xs font-semibold">Description</TableHead>
+              <TableHead className="text-xs font-semibold">Account</TableHead>
+              <TableHead className="text-xs font-semibold">Type</TableHead>
+              <TableHead className="text-right text-xs font-semibold">Amount</TableHead>
+              <TableHead className="text-right text-xs font-semibold">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredTransactions.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-gray-500 py-8">
+            {transactions.length === 0 ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
                   No transactions found
                 </TableCell>
               </TableRow>
             ) : (
-              filteredTransactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell className="font-medium">
-                    {new Date(transaction.transaction_date).toLocaleDateString()}
+                transactions.map((transaction) => (
+                <TableRow key={transaction.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
+                  <TableCell className="font-medium text-sm text-foreground">
+                    {new Date(transaction.transaction_date).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                        })}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span>{transaction.category_icon || "💸"}</span>
-                      <span>{transaction.category_name || "Transfer"}</span>
+                      <span className="text-lg">{transaction.category_icon || "💸"}</span>
+                      <span className="text-sm text-foreground">{transaction.category_name || "Transfer"}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{transaction.description || "-"}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{transaction.description || "-"}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span>{transaction.payment_method_icon}</span>
-                      <span>{transaction.payment_method_name}</span>
+                      <span className="text-lg">{transaction.payment_method_icon}</span>
+                      <span className="text-sm text-foreground">{transaction.payment_method_name}</span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant={
+                      variant="outline"
+                      className={
                         transaction.type === "income"
-                          ? "default"
+                          ? "bg-green-500/10 text-green-600 dark:text-green-500 border-0"
                           : transaction.type === "expense"
-                          ? "destructive"
-                          : "secondary"
+                          ? "bg-red-500/10 text-red-600 dark:text-red-500 border-0"
+                          : "bg-blue-500/10 text-blue-600 dark:text-blue-500 border-0"
                       }
                     >
                       {transaction.type}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right font-bold">
+                  <TableCell className="text-right font-semibold text-sm">
                     <span
                       className={
                         transaction.type === "income"
-                          ? "text-green-600"
+                          ? "text-green-600 dark:text-green-500"
                           : transaction.type === "expense"
-                          ? "text-red-600"
-                          : "text-blue-600"
+                          ? "text-destructive"
+                          : "text-primary"
                       }
                     >
                       {transaction.type === "income" ? "+" : transaction.type === "expense" ? "-" : ""}
@@ -218,11 +229,12 @@ export default function TransactionTable({
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-1">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEdit(transaction)}
+                        className="h-8 w-8 hover:bg-primary/10"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -230,8 +242,9 @@ export default function TransactionTable({
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(transaction)}
+                        className="h-8 w-8 hover:bg-destructive/10"
                       >
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                        <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
                   </TableCell>
@@ -244,8 +257,8 @@ export default function TransactionTable({
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">
-          Showing {((currentPage - 1) * 50) + 1} to {Math.min(currentPage * 50, totalCount)} of {totalCount} transactions
+        <p className="text-sm text-muted-foreground">
+          Showing {((currentPage - 1) * itemPerPage) + 1} to {Math.min(currentPage * itemPerPage, totalCount)} of {totalCount} transactions
         </p>
 
         <div className="flex items-center gap-2">

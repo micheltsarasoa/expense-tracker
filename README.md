@@ -4,6 +4,10 @@
 
 A full-stack expense tracking application built with Next.js 14, PostgreSQL (Neon), and NextAuth.js.
 
+# To-DO:
+https://www.youtube.com/watch?v=F8yTXeJAJ-c
+
+
 ## Features
 
 - 🔐 **Authentication** - Secure login/signup with NextAuth.js

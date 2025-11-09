@@ -6,6 +6,7 @@ export async function createUser(email: string, passwordHash: string, name: stri
     VALUES ($1, $2, $3)
     RETURNING id, email, name, created_at
   `;
+  
   const result = await query(sql, [email, passwordHash, name]);
   return result.rows[0];
 }
