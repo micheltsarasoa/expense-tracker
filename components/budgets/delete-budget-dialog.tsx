@@ -54,7 +54,7 @@ export function DeleteBudgetDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent data-testid="delete-budget-dialog">
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Budget?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -66,11 +66,14 @@ export function DeleteBudgetDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading} data-testid="delete-budget-cancel">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={loading}
             className="bg-destructive hover:bg-destructive/90"
+            data-testid="delete-budget-confirm"
           >
             {loading ? "Deleting..." : "Delete"}
           </AlertDialogAction>
