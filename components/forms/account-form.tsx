@@ -81,10 +81,12 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="account-form">
       <div>
-        <Label>Account Name</Label>
+        <Label htmlFor="account-name">Account Name</Label>
         <Input
+          id="account-name"
+          data-testid="account-name-input"
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -93,7 +95,7 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
       </div>
 
       <div>
-        <Label>Account Type</Label>
+        <Label htmlFor="account-type">Account Type</Label>
         <Select
           value={formData.type}
           onValueChange={(value) => {
@@ -105,7 +107,7 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
             });
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger id="account-type" data-testid="account-type-select">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -119,8 +121,10 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
       </div>
 
       <div>
-        <Label>Initial Balance</Label>
+        <Label htmlFor="initial-balance">Initial Balance</Label>
         <Input
+          id="initial-balance"
+          data-testid="initial-balance-input"
           type="number"
           step="0.01"
           required
@@ -134,8 +138,10 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
       </div>
 
       <div>
-        <Label>Icon</Label>
+        <Label htmlFor="account-icon">Icon</Label>
         <Input
+          id="account-icon"
+          data-testid="account-icon-input"
           value={formData.icon}
           onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
           placeholder="🏦"
@@ -144,15 +150,17 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
       </div>
 
       <div>
-        <Label>Color</Label>
+        <Label htmlFor="account-color">Color</Label>
         <Input
+          id="account-color"
+          data-testid="account-color-input"
           type="color"
           value={formData.color}
           onChange={(e) => setFormData({ ...formData, color: e.target.value })}
         />
       </div>
 
-      <Button type="submit" disabled={loading} className="w-full">
+      <Button type="submit" disabled={loading} className="w-full" data-testid="create-account-submit">
         {loading ? "Creating..." : "Create Account"}
       </Button>
     </form>
