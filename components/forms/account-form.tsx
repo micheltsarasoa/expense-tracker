@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 type AccountFormProps = {
   onSuccess?: () => void;
@@ -39,6 +40,8 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
     e.preventDefault();
     setLoading(true);
 
+    const loadingToast = toast.loading("Creating account...");
+
     try {
       const res = await fetch("/api/v1/payment-methods", {
         method: "POST",
@@ -46,8 +49,13 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
         body: JSON.stringify(formData),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        alert("Account created!");
+        toast.success("Account created successfully!", {
+          id: loadingToast,
+          description: `${formData.icon} ${formData.name} has been added to your accounts.`,
+        });
         onSuccess?.();
         setFormData({
           name: "",
@@ -57,10 +65,16 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
           color: "#3B82F6",
         });
       } else {
-        alert("Failed to create account");
+        toast.error("Failed to create account", {
+          id: loadingToast,
+          description: data.error?.message || "Please try again.",
+        });
       }
-    } catch (error) {
-      alert("Error creating account");
+    } catch (error: any) {
+      toast.error("Error creating account", {
+        id: loadingToast,
+        description: error.message || "Something went wrong.",
+      });
     } finally {
       setLoading(false);
     }
