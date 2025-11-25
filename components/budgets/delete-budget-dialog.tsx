@@ -30,6 +30,7 @@ export function DeleteBudgetDialog({
 
   const handleDelete = async () => {
     setLoading(true);
+    const loadingToast = toast.loading("Deleting budget...");
 
     try {
       const response = await fetch(`/api/v1/budgets/${budget.id}`, {
@@ -42,11 +43,17 @@ export function DeleteBudgetDialog({
         throw new Error(data.error?.message || "Failed to delete budget");
       }
 
-      toast.success("Budget deleted successfully");
+      toast.success("Budget deleted successfully", {
+        id: loadingToast,
+        description: `${budget.name} has been removed.`,
+      });
       onOpenChange(false);
       router.refresh();
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error("Failed to delete budget", {
+        id: loadingToast,
+        description: error.message,
+      });
     } finally {
       setLoading(false);
     }
