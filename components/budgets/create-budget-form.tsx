@@ -69,11 +69,12 @@ export default function CreateBudgetForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="create-budget-form">
       <div className="space-y-2">
         <Label htmlFor="name">Budget Name</Label>
         <Input
           id="name"
+          data-testid="budget-name-input"
           placeholder="e.g., Groceries Budget"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -85,6 +86,7 @@ export default function CreateBudgetForm({
         <Label htmlFor="amount">Amount</Label>
         <Input
           id="amount"
+          data-testid="budget-amount-input"
           type="number"
           step="0.01"
           placeholder="500.00"
@@ -100,7 +102,7 @@ export default function CreateBudgetForm({
           value={formData.period_type}
           onValueChange={(value) => setFormData({ ...formData, period_type: value })}
         >
-          <SelectTrigger>
+          <SelectTrigger id="period_type" data-testid="budget-period-type-select">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -116,6 +118,7 @@ export default function CreateBudgetForm({
         <Label htmlFor="start_date">Start Date</Label>
         <Input
           id="start_date"
+          data-testid="budget-start-date-input"
           type="date"
           value={formData.start_date}
           onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
@@ -128,6 +131,7 @@ export default function CreateBudgetForm({
           <Label htmlFor="end_date">End Date</Label>
           <Input
             id="end_date"
+            data-testid="budget-end-date-input"
             type="date"
             value={formData.end_date}
             onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
@@ -141,7 +145,7 @@ export default function CreateBudgetForm({
           value={formData.category_id || "all"}
           onValueChange={(value) => setFormData({ ...formData, category_id: value === "all" ? "" : value })}
         >
-          <SelectTrigger>
+          <SelectTrigger id="category" data-testid="budget-category-select">
             <SelectValue placeholder="All categories" />
           </SelectTrigger>
           <SelectContent>
@@ -156,7 +160,7 @@ export default function CreateBudgetForm({
       </div>
 
       <div className="flex gap-2 pt-4">
-        <Button type="submit" disabled={loading} className="flex-1">
+        <Button type="submit" disabled={loading} className="flex-1" data-testid="create-budget-submit">
           {loading ? "Creating..." : "Create Budget"}
         </Button>
       </div>
