@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 type CategoryFormProps = {
   categories?: any[];
@@ -33,6 +34,8 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
     e.preventDefault();
     setLoading(true);
 
+    const loadingToast = toast.loading("Creating category...");
+
     try {
       const res = await fetch("/api/v1/categories", {
         method: "POST",
@@ -43,8 +46,13 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
         }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        alert("Category created!");
+        toast.success("Category created successfully!", {
+          id: loadingToast,
+          description: `${formData.icon} ${formData.name} is now available.`,
+        });
         onSuccess?.();
         setFormData({
           name: "",
@@ -54,10 +62,16 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
           color: "#6B7280",
         });
       } else {
-        alert("Failed to create category");
+        toast.error("Failed to create category", {
+          id: loadingToast,
+          description: data.error?.message || "Please try again.",
+        });
       }
-    } catch (error) {
-      alert("Error creating category");
+    } catch (error: any) {
+      toast.error("Error creating category", {
+        id: loadingToast,
+        description: error.message || "Something went wrong.",
+      });
     } finally {
       setLoading(false);
     }
