@@ -50,14 +50,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted">
+    <div className="min-h-screen flex items-center justify-center bg-muted" data-testid="register-page">
       <div className="max-w-md w-full bg-card rounded-lg shadow-lg p-8 border border-border">
         <h1 className="text-2xl font-semibold text-center mb-6 text-foreground">Create Account</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" data-testid="register-form">
           <div>
-            <label className="block text-sm font-medium mb-1 text-foreground">Name</label>
+            <label htmlFor="name" className="block text-sm font-medium mb-1 text-foreground">Name</label>
             <input
+              id="name"
+              data-testid="register-name-input"
               type="text"
               name="name"
               required
@@ -68,8 +70,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-foreground">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium mb-1 text-foreground">Email</label>
             <input
+              id="email"
+              data-testid="register-email-input"
               type="email"
               name="email"
               required
@@ -80,8 +84,10 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-foreground">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium mb-1 text-foreground">Password</label>
             <input
+              id="password"
+              data-testid="register-password-input"
               type="password"
               name="password"
               required
@@ -96,6 +102,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
+            data-testid="register-submit-button"
             className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Creating account..." : "Register"}
@@ -104,7 +111,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-muted-foreground mt-4">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary hover:underline" data-testid="login-link">
             Login
           </Link>
         </p>
