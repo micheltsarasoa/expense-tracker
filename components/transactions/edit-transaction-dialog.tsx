@@ -240,10 +240,10 @@ export function EditTransactionDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} data-testid="edit-transaction-cancel">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} data-testid="edit-transaction-submit">
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
