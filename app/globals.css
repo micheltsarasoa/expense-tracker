@@ -159,3 +159,73 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Toast Glassmorphism Styles */
+@layer components {
+  .toast-glassmorphism {
+    @apply backdrop-blur-xl border shadow-2xl;
+    background: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+  }
+
+  .dark .toast-glassmorphism {
+    background: rgba(38, 38, 36, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
+  }
+
+  .toast-success {
+    border-left: 4px solid rgb(34, 197, 94) !important;
+  }
+
+  .toast-error {
+    border-left: 4px solid rgb(239, 68, 68) !important;
+  }
+
+  .toast-warning {
+    border-left: 4px solid rgb(251, 191, 36) !important;
+  }
+
+  .toast-info {
+    border-left: 4px solid rgb(59, 130, 246) !important;
+  }
+
+  .toast-title {
+    @apply font-semibold text-base;
+    color: var(--foreground) !important;
+  }
+
+  .toast-description {
+    @apply text-sm opacity-90;
+    color: var(--muted-foreground) !important;
+  }
+
+  .toast-action {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-3 py-1.5 text-sm font-medium transition-colors;
+  }
+
+  .toast-cancel {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md px-3 py-1.5 text-sm font-medium transition-colors;
+  }
+
+  .toast-close {
+    @apply opacity-70 hover:opacity-100 transition-opacity;
+  }
+
+  /* Animation improvements */
+  [data-sonner-toast] {
+    @apply animate-in slide-in-from-right duration-300;
+  }
+
+  [data-sonner-toast][data-removed="true"] {
+    @apply animate-out slide-out-to-right duration-200;
+  }
+
+  /* Loading toast pulse animation */
+  [data-sonner-toast][data-type="loading"] {
+    @apply animate-pulse;
+  }
+}
