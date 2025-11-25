@@ -219,10 +219,11 @@ export function EditBudgetDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              data-testid="edit-budget-cancel"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} data-testid="edit-budget-submit">
               {loading ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
