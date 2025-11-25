@@ -75,6 +75,8 @@ export function EditTransactionDialog({
     e.preventDefault();
     setLoading(true);
     
+    const loadingToast = toast.loading("Updating transaction...");
+    
     // Convert amount to number before sending
     const payload = {
         ...formData,
@@ -82,8 +84,6 @@ export function EditTransactionDialog({
         ? parseFloat(formData.amount) 
         : formData.amount,
     };
-    
-    console.log('Sending data:', formData);
 
     try {
       const response = await fetch(`/api/v1/transactions/${transaction.id}`, {
@@ -93,17 +93,23 @@ export function EditTransactionDialog({
       });
 
       const data = await response.json();
-      console.log('Response:', data); // DEBUG
+      
       if (!response.ok) {
         throw new Error(data.error?.message || 'Failed to update transaction');
       }
 
-      toast.success('Transaction updated successfully');
+      toast.success('Transaction updated successfully', {
+        id: loadingToast,
+        description: `${formData.description || 'Transaction'} has been updated.`,
+      });
 
       onOpenChange(false);
       router.refresh();
     } catch (error: any) {
-        toast.error(error.message);
+      toast.error("Failed to update transaction", {
+        id: loadingToast,
+        description: error.message,
+      });
     } finally {
       setLoading(false);
     }
