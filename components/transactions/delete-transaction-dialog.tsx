@@ -30,6 +30,7 @@ export function DeleteTransactionDialog({
 
   const handleDelete = async () => {
     setLoading(true);
+    const loadingToast = toast.loading("Deleting transaction...");
 
     try {
       const response = await fetch(`/api/v1/transactions/${transaction.id}`, {
@@ -42,12 +43,18 @@ export function DeleteTransactionDialog({
         throw new Error(data.error?.message || 'Failed to delete transaction');
       }
 
-      toast.success('Transaction deleted successfully');
+      toast.success('Transaction deleted successfully', {
+        id: loadingToast,
+        description: `${transaction.description || 'Transaction'} has been removed.`,
+      });
 
       onOpenChange(false);
       router.refresh();
     } catch (error: any) {
-        toast.error(error.message);
+      toast.error("Failed to delete transaction", {
+        id: loadingToast,
+        description: error.message,
+      });
     } finally {
         setLoading(false);
     }
