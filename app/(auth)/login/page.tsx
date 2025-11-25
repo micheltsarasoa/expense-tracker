@@ -52,14 +52,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted">
+    <div className="min-h-screen flex items-center justify-center bg-muted" data-testid="login-page">
       <div className="max-w-md w-full bg-card rounded-lg shadow-lg p-8 border border-border">
         <h1 className="text-2xl font-semibold text-center mb-6 text-foreground">Welcome Back</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" data-testid="login-form">
           <div>
-            <label className="block text-sm font-medium mb-1 text-foreground">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium mb-1 text-foreground">Email</label>
             <input
+              id="email"
+              data-testid="login-email-input"
               type="email"
               required
               className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
@@ -69,8 +71,10 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1 text-foreground">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium mb-1 text-foreground">Password</label>
             <input
+              id="password"
+              data-testid="login-password-input"
               type="password"
               required
               className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
@@ -82,6 +86,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
+            data-testid="login-submit-button"
             className="w-full bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Logging in..." : "Login"}
@@ -90,7 +95,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-muted-foreground mt-4">
           Don't have an account?{" "}
-          <Link href="/register" className="text-primary hover:underline">
+          <Link href="/register" className="text-primary hover:underline" data-testid="register-link">
             Register
           </Link>
         </p>
