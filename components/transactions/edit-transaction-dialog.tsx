@@ -132,7 +132,7 @@ export function EditTransactionDialog({
               value={formData.type}
               onValueChange={(value) => setFormData({ ...formData, type: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger id="type" data-testid="transaction-type-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -147,6 +147,7 @@ export function EditTransactionDialog({
             <Label htmlFor="amount">Amount</Label>
             <Input
                 id="amount"
+                data-testid="transaction-amount-input"
                 type="number"
                 step="0.01"
                 value={formData.amount}
