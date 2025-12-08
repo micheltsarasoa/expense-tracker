@@ -20,14 +20,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
 import TransactionForm from "@/components/forms/transaction-form";
 import { EditTransactionDialog } from "@/components/transactions/edit-transaction-dialog";
 import { DeleteTransactionDialog } from "@/components/transactions/delete-transaction-dialog";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Upload, ChevronLeft, ChevronRight, CalendarIcon, X, Filter } from "lucide-react";
 import { ImportTransactionsDialog } from "./import-transactions-dialog";
-import { Upload } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 type Transaction = {
   id: string;
@@ -67,29 +70,30 @@ export default function TransactionTable({
 }: TransactionTableProps) {
   
   const [transactions, setTransactions] = useState(initialTransactions);
-  useEffect(() => {
-      setTransactions(initialTransactions);
-    }, [initialTransactions]);
-
-  // const [typeFilter, setTypeFilter] = useState("all");
-  // const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
   const [importDialog, setImportDialog] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Filter states - initialized from URL params for server-side filtering
+  const [typeFilter, setTypeFilter] = useState(searchParams.get("type") || "all");
+  const [categoryFilter, setCategoryFilter] = useState(searchParams.get("category") || "all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(
+    searchParams.get("dateFrom") ? new Date(searchParams.get("dateFrom")!) : undefined
+  );
+  const [dateTo, setDateTo] = useState<Date | undefined>(
+    searchParams.get("dateTo") ? new Date(searchParams.get("dateTo")!) : undefined
+  );
 
   // Edit/Delete dialog states
   const [editDialog, setEditDialog] = useState({ open: false, transaction: null as Transaction | null });
   const [deleteDialog, setDeleteDialog] = useState({ open: false, transaction: null as Transaction | null });
 
-  // Filter transactions
-  // const filteredTransactions = transactions.filter((t) => {
-  //   const matchesType = typeFilter === "all" || t.type === typeFilter;
-  //   const matchesSearch = t.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //                        t.category_name?.toLowerCase().includes(searchTerm.toLowerCase());
-  //   return matchesType && matchesSearch;
-  // });
+  useEffect(() => {
+    setTransactions(initialTransactions);
+  }, [initialTransactions]);
 
   const handleSuccess = () => {
     setOpen(false);
@@ -110,51 +114,211 @@ export default function TransactionTable({
     router.push(`?${params.toString()}`);
   };
 
+  const applyFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    // Reset to page 1 when applying filters
+    params.set("page", "1");
+    
+    if (typeFilter !== "all") {
+      params.set("type", typeFilter);
+    } else {
+      params.delete("type");
+    }
+
+    if (categoryFilter !== "all") {
+      params.set("category", categoryFilter);
+    } else {
+      params.delete("category");
+    }
+
+    if (dateFrom) {
+      params.set("dateFrom", format(dateFrom, "yyyy-MM-dd"));
+    } else {
+      params.delete("dateFrom");
+    }
+
+    if (dateTo) {
+      params.set("dateTo", format(dateTo, "yyyy-MM-dd"));
+    } else {
+      params.delete("dateTo");
+    }
+
+    router.push(`?${params.toString()}`);
+  };
+
+  const clearFilters = () => {
+    setTypeFilter("all");
+    setCategoryFilter("all");
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    router.push("?page=1");
+  };
+
+  const hasActiveFilters = typeFilter !== "all" || 
+                          categoryFilter !== "all" || 
+                          dateFrom !== undefined || 
+                          dateTo !== undefined;
+
   return (
     <div className="space-y-4">
       {/* Header with filters and add button */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex gap-2 flex-1 w-full sm:w-auto">
-          {/* <Input
-            placeholder="Search transactions..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-xs"
-          />
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="income">Income</SelectItem>
-              <SelectItem value="expense">Expense</SelectItem>
-              <SelectItem value="transfer">Transfer</SelectItem>
-            </SelectContent>
-          </Select> */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex gap-2 items-center">
+            <Button
+              variant={showFilters ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center">
+                  {[typeFilter !== "all", categoryFilter !== "all", dateFrom, dateTo].filter(Boolean).length}
+                </Badge>
+              )}
+            </Button>
+            
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                <X className="h-4 w-4 mr-2" />
+                Clear
+              </Button>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setImportDialog(true)}>
+              <Upload className="h-4 w-4 mr-2" />
+              Import
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button>+ Add Transaction</Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Add Transaction</DialogTitle>
+                </DialogHeader>
+                <TransactionForm
+                  paymentMethods={paymentMethods}
+                  categories={categories}
+                  onSuccess={handleSuccess}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setImportDialog(true)}>
-            <Upload className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>+ Add Transaction</Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add Transaction</DialogTitle>
-              </DialogHeader>
-              <TransactionForm
-                paymentMethods={paymentMethods}
-                categories={categories}
-                onSuccess={handleSuccess}
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
+        {/* Filter Panel */}
+        {showFilters && (
+          <div className="p-4 border rounded-lg bg-card space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Type Filter */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium">Type</Label>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="income">Income</SelectItem>
+                    <SelectItem value="expense">Expense</SelectItem>
+                    <SelectItem value="transfer">Transfer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Category Filter */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium">Category</Label>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{category.icon}</span>
+                          <span>{category.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Date From */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium">Date From</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !dateFrom && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateFrom ? format(dateFrom, "MMM dd, yyyy") : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateFrom}
+                      onSelect={setDateFrom}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Date To */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium">Date To</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !dateTo && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateTo ? format(dateTo, "MMM dd, yyyy") : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateTo}
+                      onSelect={setDateTo}
+                      initialFocus
+                      disabled={(date) => dateFrom ? date < dateFrom : false}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {/* Apply Filters Button */}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={clearFilters}>
+                Clear
+              </Button>
+              <Button onClick={applyFilters}>
+                Apply Filters
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Table */}
@@ -175,16 +339,15 @@ export default function TransactionTable({
           <TableBody>
             {transactions.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-12">
                   No transactions found
                 </TableCell>
               </TableRow>
             ) : (
-                transactions.map((transaction) => (
+              transactions.map((transaction) => (
                 <TableRow key={transaction.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
                   <TableCell className="font-medium text-sm text-foreground">
-                    {/* {new Date(transaction.transaction_date).toLocaleDateString('fr-FR', {year: 'numeric', month: '2-digit',day: '2-digit'})} */}
-                     {new Date(transaction.transaction_date).toISOString().split('T')[0]}
+                    {new Date(transaction.transaction_date).toISOString().split('T')[0]}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -319,7 +482,6 @@ export default function TransactionTable({
           </Button>
         </div>
       </div>
-
 
       {/* Edit Dialog */}
       {editDialog.transaction && (

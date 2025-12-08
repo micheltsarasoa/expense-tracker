@@ -5,9 +5,9 @@ export const createTransactionSchema = z.object({
   amount: z.number().positive("Amount must be positive"),
   description: z.string().optional(),
   transaction_date: z.string().datetime(),
-  category_id: z.string().uuid().optional(),
-  payment_method_id: z.string().uuid(),
-  to_payment_method_id: z.string().uuid().optional(),
+  category_id: z.string().optional(),
+  payment_method_id: z.string(),
+  to_payment_method_id: z.string().optional(),
 }).refine((data) => {
   // Transfer must have to_payment_method_id
   if (data.type === "transfer" && !data.to_payment_method_id) {
@@ -27,9 +27,9 @@ export const updateTransactionSchema = z.object({
   amount: z.number().positive().optional(),
   description: z.string().optional(),
   transaction_date: z.string().optional(),
-  category_id: z.string().uuid().optional(),
-  payment_method_id: z.string().uuid().optional(),
-  to_payment_method_id: z.string().uuid().optional(),
+  category_id: z.string().optional(),
+  payment_method_id: z.string().optional(),
+  to_payment_method_id: z.string().optional(),
 });
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;

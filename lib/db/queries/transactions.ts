@@ -31,7 +31,85 @@ export async function createTransaction(data: {
   return result.rows[0];
 }
 
-export async function getTransactionsByUser(userId: string, limit = 20, offset = 0) {
+
+type TransactionFilters = {
+  type?: string;
+  categoryId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+};
+
+export async function getTransactionsByUser(
+  userId: string,
+  limit = 20,
+  offset = 0,
+  filters?: TransactionFilters
+) {
+  const params: any[] = [userId];
+  let paramIndex = 2;
+  const conditions: string[] = ['t.user_id = $1', 't.is_deleted = FALSE'];
+
+  // Type filter
+  if (filters?.type) {
+    conditions.push(`t.type = $${paramIndex}`);
+    params.push(filters.type);
+    paramIndex++;
+  }
+
+  // Category filter
+  if (filters?.categoryId) {
+    conditions.push(`t.category_id = $${paramIndex}`);
+    params.push(filters.categoryId);
+    paramIndex++;
+  }
+
+  // Date from filter
+  if (filters?.dateFrom) {
+    conditions.push(`t.transaction_date >= $${paramIndex}`);
+    params.push(filters.dateFrom);
+    paramIndex++;
+  }
+
+  // Date to filter
+  if (filters?.dateTo) {
+    conditions.push(`t.transaction_date <= $${paramIndex}`);
+    params.push(filters.dateTo);
+    paramIndex++;
+  }
+
+  const whereClause = conditions.join(' AND ');
+
+  const sql = `
+    SELECT t.id,
+           t.type,
+           t.amount,
+           t.description,
+           t.transaction_date,
+           t.category_id,
+           c.name as category_name, 
+           c.icon as category_icon,
+           pm.name as payment_method_name,
+           pm.icon as payment_method_icon,
+           pm.id as payment_method_id,
+           tpm.name as to_payment_method_name,
+           tpm.icon as to_payment_method_icon,
+           tpm.id as to_payment_method_id
+    FROM transactions t
+    LEFT JOIN categories c ON t.category_id = c.id
+    LEFT JOIN payment_methods pm ON t.payment_method_id = pm.id
+    LEFT JOIN payment_methods tpm ON t.to_payment_method_id = tpm.id
+    WHERE ${whereClause}
+    ORDER BY t.transaction_date DESC
+    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+  `;
+  console.log(sql); //debugg
+  params.push(limit, offset);
+
+  const result = await query(sql, params);
+  return result.rows;
+}
+
+export async function getTransactionsByUser_old(userId: string, limit = 20, offset = 0) {
   const sql = `
     SELECT t.id,
            t.type,
@@ -146,12 +224,57 @@ export async function deleteTransaction(id: string, userId: string) {
   return result.rows[0];
 }
 
-export async function getTransactionsCount(userId: string) {
+export async function getTransactionsCount_old(userId: string) {
   const sql = `
     SELECT COUNT(*) as total
     FROM transactions
     WHERE user_id = $1 AND is_deleted = FALSE
   `;
   const result = await query(sql, [userId]);
+  return parseInt(result.rows[0].total);
+}
+
+// Get total count with filters (for pagination)
+export async function getTransactionsCount(
+  userId: string,
+  filters?: TransactionFilters
+) {
+  const params: any[] = [userId];
+  let paramIndex = 2;
+  const conditions: string[] = ['user_id = $1', 'is_deleted = FALSE'];
+
+  if (filters?.type) {
+    conditions.push(`type = $${paramIndex}`);
+    params.push(filters.type);
+    paramIndex++;
+  }
+
+  if (filters?.categoryId) {
+    conditions.push(`category_id = $${paramIndex}`);
+    params.push(filters.categoryId);
+    paramIndex++;
+  }
+
+  if (filters?.dateFrom) {
+    conditions.push(`transaction_date >= $${paramIndex}`);
+    params.push(filters.dateFrom);
+    paramIndex++;
+  }
+
+  if (filters?.dateTo) {
+    conditions.push(`transaction_date <= $${paramIndex}`);
+    params.push(filters.dateTo);
+    paramIndex++;
+  }
+
+  const whereClause = conditions.join(' AND ');
+
+  const sql = `
+    SELECT COUNT(*) as total
+    FROM transactions
+    WHERE ${whereClause}
+  `;
+
+  const result = await query(sql, params);
   return parseInt(result.rows[0].total);
 }

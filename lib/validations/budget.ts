@@ -8,7 +8,7 @@ export const createBudgetSchema = z.object({
     message: 'Invalid start date',
   }),
   end_date: z.string().optional().nullable(),
-  category_id: z.string().uuid().optional().nullable(),
+  category_id: z.string().optional().nullable(),
 });
 
 export const updateBudgetSchema = z.object({
@@ -17,6 +17,6 @@ export const updateBudgetSchema = z.object({
   period_type: z.enum(['one_time', 'monthly', 'weekly', 'yearly']).optional(),
   start_date: z.string().optional(),
   end_date: z.string().optional().nullable(),
-  category_id: z.string().uuid().optional().nullable(),
+  category_id: z.string().optional().nullable(),
   is_active: z.boolean().optional(),
 });

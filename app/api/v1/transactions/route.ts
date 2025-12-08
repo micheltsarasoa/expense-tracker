@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { createTransactionSchema } from "@/lib/validations/transaction";
-import { createTransaction, getTransactionsByUser } from "@/lib/db/queries/transactions";
+import { createTransaction, getTransactionsByUser, getTransactionsCount } from "@/lib/db/queries/transactions";
 import { authOptions } from "@/lib/auth/config";
 
 export async function POST(request: NextRequest) {
@@ -82,19 +82,47 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
+    
+    // Pagination params
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20")));
     const offset = (page - 1) * limit;
 
-    const transactions = await getTransactionsByUser(session.user.id, limit, offset);
+    // Filter params
+    const type = searchParams.get("type");
+    const categoryId = searchParams.get("category");
+    const dateFrom = searchParams.get("dateFrom");
+    const dateTo = searchParams.get("dateTo");
+
+    // Build filters object
+    const filters: any = {};
+    if (type && type !== "all") filters.type = type;
+    if (categoryId && categoryId !== "all") filters.categoryId = categoryId;
+    if (dateFrom) filters.dateFrom = new Date(dateFrom);
+    if (dateTo) {
+      const endDate = new Date(dateTo);
+      endDate.setHours(23, 59, 59, 999); // End of day
+      filters.dateTo = endDate;
+    }
+
+    // Get transactions and total count with filters
+    const [transactions, total] = await Promise.all([
+      getTransactionsByUser(session.user.id, limit, offset, Object.keys(filters).length > 0 ? filters : undefined),
+      getTransactionsCount(session.user.id, Object.keys(filters).length > 0 ? filters : undefined)
+    ]);
 
     return NextResponse.json({
       success: true,
       data: transactions,
-      pagination: { page, limit, total: transactions.length, totalPages: Math.ceil(transactions.length / limit) },
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      },
     });
   } catch (error) {
-    console.error("Get transactions error: ", error);
+    console.error("Get transactions error:", error);
     return NextResponse.json(
       { success: false, error: { code: "INTERNAL_ERROR", message: "Something went wrong" } },
       { status: 500 }
