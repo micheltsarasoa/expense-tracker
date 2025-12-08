@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
         console.log(`Transaction ${i + 1} successfully created:`, transaction); // Debugging
         results.push(transaction);
       } catch (error: any) {
-        console.error(`Error processing transaction ${i + 1}:`, t, error); // Debugging
+        console.error(`Error processing transaction ${i + 1}:`, error); // Debugging
         errors.push({ row: i + 1, error: error.message });
       }
     }

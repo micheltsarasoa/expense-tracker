@@ -30,6 +30,7 @@ export function DeleteBudgetDialog({
 
   const handleDelete = async () => {
     setLoading(true);
+    const loadingToast = toast.loading("Deleting budget...");
 
     try {
       const response = await fetch(`/api/v1/budgets/${budget.id}`, {
@@ -42,11 +43,17 @@ export function DeleteBudgetDialog({
         throw new Error(data.error?.message || "Failed to delete budget");
       }
 
-      toast.success("Budget deleted successfully");
+      toast.success("Budget deleted successfully", {
+        id: loadingToast,
+        description: `${budget.name} has been removed.`,
+      });
       onOpenChange(false);
       router.refresh();
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error("Failed to delete budget", {
+        id: loadingToast,
+        description: error.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -54,7 +61,7 @@ export function DeleteBudgetDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent data-testid="delete-budget-dialog">
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Budget?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -66,11 +73,14 @@ export function DeleteBudgetDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading} data-testid="delete-budget-cancel">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={loading}
             className="bg-destructive hover:bg-destructive/90"
+            data-testid="delete-budget-confirm"
           >
             {loading ? "Deleting..." : "Delete"}
           </AlertDialogAction>

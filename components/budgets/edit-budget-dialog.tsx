@@ -72,6 +72,8 @@ export function EditBudgetDialog({
     e.preventDefault();
     setLoading(true);
 
+    const loadingToast = toast.loading("Updating budget...");
+
     try {
       const payload = {
         name: formData.name,
@@ -96,11 +98,17 @@ export function EditBudgetDialog({
         throw new Error(data.error?.message || "Failed to update budget");
       }
 
-      toast.success("Budget updated successfully");
+      toast.success("Budget updated successfully", {
+        id: loadingToast,
+        description: `${formData.name} has been updated.`,
+      });
       onOpenChange(false);
       router.refresh();
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error("Failed to update budget", {
+        id: loadingToast,
+        description: error.message,
+      });
     } finally {
       setLoading(false);
     }

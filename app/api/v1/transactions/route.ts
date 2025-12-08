@@ -17,11 +17,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createTransactionSchema.parse(body);
 
-    // const transaction = await createTransaction({
-    //   userId: session.user.id,
-    //   ...validatedData,
-    //   transactionDate: new Date(validatedData.transaction_date),
-    // });
     const {
       transaction_date,
       payment_method_id,
@@ -30,10 +25,18 @@ export async function POST(request: NextRequest) {
       ...rest
     } = validatedData;
 
+    const transactionDate = new Date(transaction_date);
+    if (isNaN(transactionDate.getTime())) {
+      return NextResponse.json(
+        { success: false, error: { code: "VALIDATION_ERROR", message: "Invalid date" } },
+        { status: 400 }
+      );
+    }
+
     const transaction = await createTransaction({
       userId: session.user.id,
       ...rest,
-      transactionDate: new Date(transaction_date),
+      transactionDate: transactionDate,
       paymentMethodId: payment_method_id,
       categoryId: category_id,
       toPaymentMethodId: to_payment_method_id,
@@ -44,13 +47,23 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
+    console.error("Transaction creation error:", error);
+
     if (error.name === "ZodError") {
       return NextResponse.json(
         { success: false, error: { code: "VALIDATION_ERROR", message: error.errors } },
         { status: 400 }
       );
     }
-    console.error("Create transaction error:", error);
+
+    // Handle database errors specifically
+    if (error.code === 'P2002') { // Prisma unique constraint
+      return NextResponse.json(
+        { success: false, error: { code: "CONFLICT", message: "Duplicate transaction" } },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       { success: false, error: { code: "INTERNAL_ERROR", message: "Something went wrong" } },
       { status: 500 }
@@ -69,8 +82,8 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "20");
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20")));
     const offset = (page - 1) * limit;
 
     const transactions = await getTransactionsByUser(session.user.id, limit, offset);
@@ -78,10 +91,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: transactions,
-      pagination: { page, limit, total: transactions.length },
+      pagination: { page, limit, total: transactions.length, totalPages: Math.ceil(transactions.length / limit) },
     });
   } catch (error) {
-    console.error("Get transactions error:", error);
+    console.error("Get transactions error: ", error);
     return NextResponse.json(
       { success: false, error: { code: "INTERNAL_ERROR", message: "Something went wrong" } },
       { status: 500 }

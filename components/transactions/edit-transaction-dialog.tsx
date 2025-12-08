@@ -92,6 +92,8 @@ export function EditTransactionDialog({
     e.preventDefault();
     setLoading(true);
     
+    const loadingToast = toast.loading("Updating transaction...");
+
     // Convert amount to number before sending
     const payload = {
         ...formData,
@@ -100,8 +102,6 @@ export function EditTransactionDialog({
         : formData.amount,
     };
     
-    console.log('Sending data:', formData);
-
     try {
       const response = await fetch(`/api/v1/transactions/${transaction.id}`, {
         method: 'PUT',
@@ -110,17 +110,22 @@ export function EditTransactionDialog({
       });
 
       const data = await response.json();
-      console.log('Response:', data); // DEBUG
       if (!response.ok) {
         throw new Error(data.error?.message || 'Failed to update transaction');
       }
 
-      toast.success('Transaction updated successfully');
+      toast.success('Transaction updated successfully', {
+        id: loadingToast,
+        description: `${formData.description || 'Transaction'} has been updated.`,
+      });
 
       onOpenChange(false);
       router.refresh();
     } catch (error: any) {
-        toast.error(error.message);
+      toast.error("Failed to update transaction", {
+        id: loadingToast,
+        description: error.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -143,7 +148,7 @@ export function EditTransactionDialog({
               value={formData.type}
               onValueChange={(value) => setFormData({ ...formData, type: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger id="type" data-testid="transaction-type-select">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -158,6 +163,7 @@ export function EditTransactionDialog({
             <Label htmlFor="amount">Amount</Label>
             <Input
                 id="amount"
+                data-testid="transaction-amount-input"
                 type="number"
                 step="0.01"
                 value={formData.amount}
@@ -250,10 +256,10 @@ export function EditTransactionDialog({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} data-testid="edit-transaction-cancel">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} data-testid="edit-transaction-submit">
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>

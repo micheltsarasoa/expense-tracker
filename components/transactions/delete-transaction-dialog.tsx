@@ -30,6 +30,7 @@ export function DeleteTransactionDialog({
 
   const handleDelete = async () => {
     setLoading(true);
+    const loadingToast = toast.loading("Deleting transaction...");
 
     try {
       const response = await fetch(`/api/v1/transactions/${transaction.id}`, {
@@ -42,12 +43,18 @@ export function DeleteTransactionDialog({
         throw new Error(data.error?.message || 'Failed to delete transaction');
       }
 
-      toast.success('Transaction deleted successfully');
+      toast.success('Transaction deleted successfully', {
+        id: loadingToast,
+        description: `${transaction.description || 'Transaction'} has been removed.`,
+      });
 
       onOpenChange(false);
       router.refresh();
     } catch (error: any) {
-        toast.error(error.message);
+      toast.error("Failed to delete transaction", {
+        id: loadingToast,
+        description: error.message,
+      });
     } finally {
         setLoading(false);
     }
@@ -55,7 +62,7 @@ export function DeleteTransactionDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent data-testid="delete-transaction-dialog">
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Transaction?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -67,11 +74,14 @@ export function DeleteTransactionDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={loading} data-testid="delete-transaction-cancel">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             disabled={loading}
             className="bg-destructive hover:bg-destructive/90"
+            data-testid="delete-transaction-confirm"
           >
             {loading ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>

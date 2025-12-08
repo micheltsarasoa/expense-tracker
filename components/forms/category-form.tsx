@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 type CategoryFormProps = {
   categories?: any[];
@@ -33,6 +34,8 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
     e.preventDefault();
     setLoading(true);
 
+    const loadingToast = toast.loading("Creating category...");
+
     try {
       const res = await fetch("/api/v1/categories", {
         method: "POST",
@@ -43,8 +46,13 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
         }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        alert("Category created!");
+        toast.success("Category created successfully!", {
+          id: loadingToast,
+          description: `${formData.icon} ${formData.name} is now available.`,
+        });
         onSuccess?.();
         setFormData({
           name: "",
@@ -54,20 +62,28 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
           color: "#6B7280",
         });
       } else {
-        alert("Failed to create category");
+        toast.error("Failed to create category", {
+          id: loadingToast,
+          description: data.error?.message || "Please try again.",
+        });
       }
-    } catch (error) {
-      alert("Error creating category");
+    } catch (error: any) {
+      toast.error("Error creating category", {
+        id: loadingToast,
+        description: error.message || "Something went wrong.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="category-form">
       <div>
-        <Label>Category Name</Label>
+        <Label htmlFor="category-name">Category Name</Label>
         <Input
+          id="category-name"
+          data-testid="category-name-input"
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -76,12 +92,12 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
       </div>
 
       <div>
-        <Label>Type</Label>
+        <Label htmlFor="category-type">Type</Label>
         <Select
           value={formData.type}
           onValueChange={(value) => setFormData({ ...formData, type: value })}
         >
-          <SelectTrigger>
+          <SelectTrigger id="category-type" data-testid="category-type-select">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -92,12 +108,12 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
       </div>
 
       <div>
-        <Label>Parent Category (optional)</Label>
+        <Label htmlFor="parent-category">Parent Category (optional)</Label>
         <Select
           value={formData.parentId || "none"}
           onValueChange={(value) => setFormData({ ...formData, parentId: value })}
         >
-          <SelectTrigger>
+          <SelectTrigger id="parent-category" data-testid="parent-category-select">
             <SelectValue placeholder="None (top level)" />
           </SelectTrigger>
           <SelectContent>
@@ -114,8 +130,10 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
       </div>
 
       <div>
-        <Label>Icon</Label>
+        <Label htmlFor="category-icon">Icon</Label>
         <Input
+          id="category-icon"
+          data-testid="category-icon-input"
           value={formData.icon}
           onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
           placeholder="📁"
@@ -124,15 +142,17 @@ export default function CategoryForm({ categories = [], onSuccess }: CategoryFor
       </div>
 
       <div>
-        <Label>Color</Label>
+        <Label htmlFor="category-color">Color</Label>
         <Input
+          id="category-color"
+          data-testid="category-color-input"
           type="color"
           value={formData.color}
           onChange={(e) => setFormData({ ...formData, color: e.target.value })}
         />
       </div>
 
-      <Button type="submit" disabled={loading} className="w-full">
+      <Button type="submit" disabled={loading} className="w-full" data-testid="create-category-submit">
         {loading ? "Creating..." : "Create Category"}
       </Button>
     </form>
