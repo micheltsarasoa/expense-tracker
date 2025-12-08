@@ -38,11 +38,12 @@ type Transaction = {
   category_name?: string;
   category_icon?: string;
   category_id?: string;
+  payment_method_id: string;
   payment_method_name: string;
   payment_method_icon: string;
-  account_id?: string;
-  to_account_id?: string;
-  payment_method_id?: string;
+  to_payment_method_id?: string;
+  to_payment_method_name?: string;
+  to_payment_method_icon?: string;
 };
 
 type TransactionTableProps = {
@@ -165,6 +166,7 @@ export default function TransactionTable({
               <TableHead className="text-xs font-semibold">Category</TableHead>
               <TableHead className="text-xs font-semibold">Description</TableHead>
               <TableHead className="text-xs font-semibold">Account</TableHead>
+              <TableHead className="text-xs font-semibold">To Account</TableHead>
               <TableHead className="text-xs font-semibold">Type</TableHead>
               <TableHead className="text-right text-xs font-semibold">Amount</TableHead>
               <TableHead className="text-right text-xs font-semibold">Actions</TableHead>
@@ -190,11 +192,21 @@ export default function TransactionTable({
                       <span className="text-sm text-foreground">{transaction.category_name || "Transfer"}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{transaction.description || "-"}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {(transaction.description || "-").length > 70
+                      ? (transaction.description || "-").slice(0, 70) + "..."
+                      : (transaction.description || "-")}
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{transaction.payment_method_icon}</span>
                       <span className="text-sm text-foreground">{transaction.payment_method_name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{transaction.to_payment_method_icon}</span>
+                      <span className="text-sm text-foreground">{transaction.to_payment_method_name}</span>
                     </div>
                   </TableCell>
                   <TableCell>

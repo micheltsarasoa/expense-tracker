@@ -29,8 +29,7 @@ export const updateTransactionSchema = z.object({
   transaction_date: z.string().optional(),
   category_id: z.string().uuid().optional(),
   payment_method_id: z.string().uuid().optional(),
-  account_id: z.string().uuid().optional(),
-  to_account_id: z.string().uuid().optional(),
+  to_payment_method_id: z.string().uuid().optional(),
 });
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;

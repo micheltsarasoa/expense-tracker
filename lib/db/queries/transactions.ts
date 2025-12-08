@@ -33,14 +33,24 @@ export async function createTransaction(data: {
 
 export async function getTransactionsByUser(userId: string, limit = 20, offset = 0) {
   const sql = `
-    SELECT t.*, 
+    SELECT t.id,
+           t.type,
+           t.amount,
+           t.description,
+           t.transaction_date,
+           t.category_id,
            c.name as category_name, 
            c.icon as category_icon,
            pm.name as payment_method_name,
-           pm.icon as payment_method_icon
+           pm.icon as payment_method_icon,
+           pm.id as payment_method_id,
+           tpm.name as to_payment_method_name,
+           tpm.icon as to_payment_method_icon,
+           tpm.id as to_payment_method_id
     FROM transactions t
     LEFT JOIN categories c ON t.category_id = c.id
     LEFT JOIN payment_methods pm ON t.payment_method_id = pm.id
+    LEFT JOIN payment_methods tpm ON t.to_payment_method_id = tpm.id
     WHERE t.user_id = $1 AND t.is_deleted = FALSE
     ORDER BY t.transaction_date DESC
     LIMIT $2 OFFSET $3
@@ -53,8 +63,8 @@ export async function updateTransaction2(id: string, userId: string, data: any) 
   const sql = `
     UPDATE transactions
     SET amount = $1, description = $2, transaction_date = $3,
-        category_id = $4, payment_method_id = $5, updated_at = CURRENT_TIMESTAMP
-    WHERE id = $6 AND user_id = $7
+        category_id = $4, payment_method_id = $5, updated_at = CURRENT_TIMESTAMP, to_payment_method_id = $6
+    WHERE id = $7 AND user_id = $8
     RETURNING *
   `;
   const result = await query(sql, [
@@ -63,6 +73,7 @@ export async function updateTransaction2(id: string, userId: string, data: any) 
     data.transactionDate,
     data.categoryId,
     data.paymentMethodId,
+    data.toPaymentMethodId,
     id,
     userId,
   ]);
@@ -95,13 +106,9 @@ export async function updateTransaction(id: string, userId: string, data: any) {
     updates.push(`payment_method_id = $${paramCount++}`);
     values.push(data.paymentMethodId);
   }
-  if (data.accountId !== undefined) {
-    updates.push(`account_id = $${paramCount++}`);
-    values.push(data.accountId);
-  }
-  if (data.toAccountId !== undefined) {
+  if (data.toPaymentMethodId !== undefined) {
     updates.push(`to_payment_method_id = $${paramCount++}`);
-    values.push(data.toAccountId);
+    values.push(data.toPaymentMethodId);
   }
   if (data.type !== undefined) {
     updates.push(`type = $${paramCount++}`);

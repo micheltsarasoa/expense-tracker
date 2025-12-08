@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 type AccountFormProps = {
   onSuccess?: () => void;
@@ -39,6 +40,8 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
     e.preventDefault();
     setLoading(true);
 
+    const loadingToast = toast.loading("Creating account...");
+
     try {
       const res = await fetch("/api/v1/payment-methods", {
         method: "POST",
@@ -46,8 +49,13 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
         body: JSON.stringify(formData),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        alert("Account created!");
+        toast.success("Account created successfully!", {
+          id: loadingToast,
+          description: `${formData.icon} ${formData.name} has been added to your accounts.`,
+        });
         onSuccess?.();
         setFormData({
           name: "",
@@ -57,20 +65,28 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
           color: "#3B82F6",
         });
       } else {
-        alert("Failed to create account");
+        toast.error("Failed to create account", {
+          id: loadingToast,
+          description: data.error?.message || "Please try again.",
+        });
       }
-    } catch (error) {
-      alert("Error creating account");
+    } catch (error: any) {
+      toast.error("Error creating account", {
+        id: loadingToast,
+        description: error.message || "Something went wrong.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" data-testid="account-form">
       <div>
-        <Label>Account Name</Label>
+        <Label htmlFor="account-name">Account Name</Label>
         <Input
+          id="account-name"
+          data-testid="account-name-input"
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -79,7 +95,7 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
       </div>
 
       <div>
-        <Label>Account Type</Label>
+        <Label htmlFor="account-type">Account Type</Label>
         <Select
           value={formData.type}
           onValueChange={(value) => {
@@ -91,7 +107,7 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
             });
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger id="account-type" data-testid="account-type-select">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -105,8 +121,10 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
       </div>
 
       <div>
-        <Label>Initial Balance</Label>
+        <Label htmlFor="initial-balance">Initial Balance</Label>
         <Input
+          id="initial-balance"
+          data-testid="initial-balance-input"
           type="number"
           step="0.01"
           required
@@ -120,8 +138,10 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
       </div>
 
       <div>
-        <Label>Icon</Label>
+        <Label htmlFor="account-icon">Icon</Label>
         <Input
+          id="account-icon"
+          data-testid="account-icon-input"
           value={formData.icon}
           onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
           placeholder="🏦"
@@ -130,15 +150,17 @@ export default function AccountForm({ onSuccess }: AccountFormProps) {
       </div>
 
       <div>
-        <Label>Color</Label>
+        <Label htmlFor="account-color">Color</Label>
         <Input
+          id="account-color"
+          data-testid="account-color-input"
           type="color"
           value={formData.color}
           onChange={(e) => setFormData({ ...formData, color: e.target.value })}
         />
       </div>
 
-      <Button type="submit" disabled={loading} className="w-full">
+      <Button type="submit" disabled={loading} className="w-full" data-testid="create-account-submit">
         {loading ? "Creating..." : "Create Account"}
       </Button>
     </form>

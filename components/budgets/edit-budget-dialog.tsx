@@ -108,13 +108,13 @@ export function EditBudgetDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" data-testid="edit-budget-dialog">
         <DialogHeader>
           <DialogTitle>Edit Budget</DialogTitle>
           <DialogDescription>Update budget details</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" data-testid="edit-budget-form">
           <div className="space-y-2">
             <Label htmlFor="name">Budget Name</Label>
             <Input
@@ -211,10 +211,11 @@ export function EditBudgetDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              data-testid="edit-budget-cancel"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} data-testid="edit-budget-submit">
               {loading ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>

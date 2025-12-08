@@ -49,8 +49,8 @@ export async function PUT(
       amount: validatedData.amount,
       description: validatedData.description,
       categoryId: validatedData.category_id,
-      paymentMethodId: validatedData.account_id,
-      toAccountId: validatedData.to_account_id || validatedData.account_id,
+      paymentMethodId: validatedData.payment_method_id,
+      toPaymentMethodId: validatedData.to_payment_method_id || validatedData.payment_method_id ,
       transactionDate: validatedData.transaction_date 
         ? new Date(validatedData.transaction_date + 'T00:00:00.000Z')
         : undefined,

@@ -133,24 +133,40 @@ export function ImportTransactionsDialog({
 
     data.forEach((row, idx) => {
       try {
+        const categoryName = row[mapping.category] || null;
+        const category = categoryName
+          ? categories.find(
+              (c) => c.name.toLowerCase() === categoryName.toLowerCase()
+            )
+          : null;
+
         const mappedRow = {
           date: row[mapping.date],
           type: row[mapping.type]?.toLowerCase(),
           amount: parseFloat(row[mapping.amount]),
           description: row[mapping.description] || "",
-          category: row[mapping.category] || null,
+          category: categoryName,
+          categoryId: category?.id || null,
           account: row[mapping.account],
           original: row,
           rowIndex: idx,
         };
 
+        console.log("Mapped Row:", mappedRow); // Debugging
+
         // Validate required fields
-        if (!mappedRow.date || !mappedRow.type || !mappedRow.amount || !mappedRow.account) {
+        if (
+          !mappedRow.date ||
+          !mappedRow.type ||
+          !mappedRow.amount ||
+          !mappedRow.account
+        ) {
           unmapped.push(idx);
         }
 
         mapped.push(mappedRow);
       } catch (error) {
+        console.error("Error mapping row:", row, error); // Debugging
         unmapped.push(idx);
         mapped.push({ rowIndex: idx, original: row, error: true });
       }
@@ -258,7 +274,7 @@ export function ImportTransactionsDialog({
         if (!open) resetDialog();
       }}
     >
-      <DialogContent className="max-w-full max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Import Transactions</DialogTitle>
           <DialogDescription>

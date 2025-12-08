@@ -23,8 +23,25 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
+type Transaction = {
+  id: string;
+  type: string;
+  amount: number;
+  description: string;
+  transaction_date: string;
+  category_name?: string;
+  category_icon?: string;
+  category_id?: string;
+  payment_method_id: string;
+  payment_method_name: string;
+  payment_method_icon: string;
+  to_payment_method_id?: string;
+  to_payment_method_name?: string;
+  to_payment_method_icon?: string;
+};
+
 interface EditTransactionDialogProps {
-  transaction: any;
+  transaction: Transaction;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   accounts: any[];
@@ -49,10 +66,11 @@ export function EditTransactionDialog({
           ? new Date(transaction.transaction_date).toISOString().split('T')[0]
           : new Date().toISOString().split('T')[0],
       category_id: transaction.category_id || '',
-      account_id: transaction.account_id || '',
-      to_account_id: transaction.to_account_id || '',
       payment_method_id: transaction.payment_method_id || '',
+      to_payment_method_id: transaction.to_payment_method_id || '',
       });
+
+    console.log(formData);
 
     useEffect(() => {
     if (transaction) {
@@ -64,9 +82,8 @@ export function EditTransactionDialog({
             ? new Date(transaction.transaction_date).toISOString().split('T')[0]
             : new Date().toISOString().split('T')[0],
         category_id: transaction.category_id || '',
-        account_id: transaction.account_id || '',
-        to_account_id: transaction.to_account_id || transaction.account_id,
         payment_method_id: transaction.payment_method_id || '',
+        to_payment_method_id: transaction.to_payment_method_id || '',
         });
     }
     }, [transaction]);
@@ -175,14 +192,14 @@ export function EditTransactionDialog({
             <div className="space-y-2">
               <Label htmlFor="to_account">To Account</Label>
               <Select
-                value={formData.to_account_id}
-                onValueChange={(value) => setFormData({ ...formData, to_account_id: value })}
+                value={formData.to_payment_method_id}
+                onValueChange={(value) => setFormData({ ...formData, to_payment_method_id: value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select destination" />
                 </SelectTrigger>
                 <SelectContent>
-                  {accounts.filter(a => a.id !== formData.account_id).map((account) => (
+                  {accounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
                       {account.name}
                     </SelectItem>

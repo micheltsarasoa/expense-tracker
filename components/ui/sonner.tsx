@@ -17,21 +17,33 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      position="bottom-right"
+      duration={4000}
+      closeButton
+      richColors
+      expand={true}
+      visibleToasts={5}
       icons={{
-        success: <CircleCheckIcon className="size-4" />,
-        info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
+        success: <CircleCheckIcon className="size-5" />,
+        info: <InfoIcon className="size-5" />,
+        warning: <TriangleAlertIcon className="size-5" />,
+        error: <OctagonXIcon className="size-5" />,
+        loading: <Loader2Icon className="size-5 animate-spin" />,
       }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
+      toastOptions={{
+        classNames: {
+          toast: 'toast-glassmorphism',
+          title: 'toast-title',
+          description: 'toast-description',
+          actionButton: 'toast-action',
+          cancelButton: 'toast-cancel',
+          closeButton: 'toast-close',
+          success: 'toast-success',
+          error: 'toast-error',
+          warning: 'toast-warning',
+          info: 'toast-info',
+        },
+      }}
       {...props}
     />
   )
